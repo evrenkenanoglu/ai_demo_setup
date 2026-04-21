@@ -1,0 +1,39 @@
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+      - frontend-dev
+    restart: always
+    networks:
+      - universestars-network
+
+  backend:
+    build: ./backend
+    container_name: us_backend
+    restart: unless-stopped
+    expose:
+      - "8000"
+    networks:
+      - universestars-network
+
+  frontend-dev:
+    build: 
+      context: ./frontend
+    container_name: us_frontend_dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "3500:3500"
+    command: npm run dev -- -p 3500
+    networks:
+      - universestars-network
+
+networks:
+  universestars-network:
+    driver: bridge
